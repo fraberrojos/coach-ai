@@ -1,9 +1,0 @@
-__pycache__/
-*.py[cod]
-*.pyo
-.env
-.env.*
-*.log
-.DS_Store
-garmin_tokens.json
-secrets.yaml
