@@ -1,0 +1,21 @@
+{
+  "domain": "coach_ai",
+  "name": "Coach AI",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/fraberrojos/coach-ai",
+  "issue_tracker": "https://github.com/fraberrojos/coach-ai/issues",
+  "codeowners": [
+    "@fraberrojos"
+  ],
+  "requirements": [
+    "fit-tool>=0.9",
+    "fitdecode==0.11.0"
+  ],
+  "integration_type": "service",
+  "iot_class": "local_polling",
+  "single_config_entry": true,
+  "loggers": [
+    "custom_components.coach_ai"
+  ]
+}
