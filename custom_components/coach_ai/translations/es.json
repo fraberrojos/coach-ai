@@ -1,0 +1,15 @@
+{
+  "title": "Coach AI",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Coach AI",
+        "description": "Configura Coach AI.",
+        "data": {}
+      }
+    },
+    "abort": {
+      "already_configured": "Coach AI ya está configurado."
+    }
+  }
+}
