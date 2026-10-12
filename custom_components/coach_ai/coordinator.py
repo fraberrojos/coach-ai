@@ -201,13 +201,9 @@ class CoachAICoordinator(
         previous_ftp = getattr(athlete, "ftp", None)
         training = self.ftp_test.generate(previous_ftp=previous_ftp)
 
-        # Generamos también el FIT local para mantener el mismo flujo de
-        # exportación que el resto de entrenamientos de Coach AI.
+        # Los entrenamientos se envían estructurados a Garmin mediante
+        # Garmin Bridge. No se genera un archivo FIT local ficticio.
         fit_file = None
-        try:
-            fit_file = self.workout_exporter.save_fit(training)
-        except Exception:
-            _LOGGER.exception("Coach AI FTP: error generando FIT del test.")
 
         # Garmin necesita una fecha futura para que el test quede programado
         # de forma explícita y no interfiera con el entrenamiento de hoy.
@@ -262,21 +258,13 @@ class CoachAICoordinator(
                     "El bloque de 20 min es OPEN.\n"
                     "El FTP no se modificará automáticamente."
                 ),
-                data={
-                    "actions": [
-                        {
-                            "action": "URI",
-                            "title": "📥 Descargar FIT",
-                            "uri": "/local/coach_ai/ftp_test_-_20_min.fit",
-                        }
-                    ]
-                },
+                data={},
             )
         else:
             await self.notifier.send(
                 "⚠️ Coach AI · Test FTP",
                 (
-                    "El test FTP se ha generado localmente, pero no se pudo "
+                    "El test FTP está preparado, pero no se pudo "
                     "programar automáticamente en Garmin.\n"
                     f"Fecha prevista: {test_date.isoformat()}"
                 ),
@@ -3489,25 +3477,11 @@ class CoachAICoordinator(
                         )
 
                 # ------------------------------------------------
-                # FIT: solo para entrenamientos reales.
-                # En REST / NO DISPONIBLE no se genera FIT.
+                # Los entrenamientos estructurados se sincronizan con
+                # Garmin Bridge; no se genera un FIT local.
+                # Se conserva fit_file=None por compatibilidad con sensores.
                 # ------------------------------------------------
-                if not is_non_workout:
-                    try:
-                        fit_file = self.workout_exporter.save_fit(
-                            frozen_today
-                        )
-                    except Exception:
-                        _LOGGER.exception(
-                            "Error generando archivo FIT del plan congelado."
-                        )
-                        fit_file = None
-                else:
-                    fit_file = None
-                    _LOGGER.debug(
-                        "Coach AI: %s -> no se genera FIT.",
-                        frozen_today.workout,
-                    )
+                fit_file = None
 
             # ----------------------------------------------------
             # NOTIFICACIÓN DIARIA: UNA VEZ DESDE LAS 09:00
@@ -3523,19 +3497,6 @@ class CoachAICoordinator(
             ):
                 try:
                     notification_data = {}
-                    if not is_non_workout:
-                        notification_data = {
-                            "actions": [
-                                {
-                                    "action": "URI",
-                                    "title": "📥 Descargar FIT",
-                                    "uri": (
-                                        "/local/coach_ai/"
-                                        f"{frozen_today.workout.lower().replace(' ', '_')}.fit"
-                                    ),
-                                },
-                            ],
-                        }
 
                     sent = await self.notifier.send(
                         "🧠 Coach AI",
@@ -3568,19 +3529,6 @@ class CoachAICoordinator(
             ):
                 try:
                     notification_data = {}
-                    if not is_non_workout:
-                        notification_data = {
-                            "actions": [
-                                {
-                                    "action": "URI",
-                                    "title": "📥 Descargar FIT",
-                                    "uri": (
-                                        "/local/coach_ai/"
-                                        f"{frozen_today.workout.lower().replace(' ', '_')}.fit"
-                                    ),
-                                },
-                            ],
-                        }
 
                     await self.notifier.send(
                         "🔄 Coach AI · Semana recalculada",
