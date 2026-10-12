@@ -1434,9 +1434,12 @@ class CoachAICoordinator(
                 )
 
         needs_new = existing is None
-        if existing is not None and self._force_recalculate:
-            needs_new = True
-        elif existing is not None:
+
+        # Analyze Now recalcula Athena, pero no debe sustituir el plan diario
+        # ya congelado ni provocar otra subida del entrenamiento a Garmin.
+        # Solo se crea un plan nuevo si aún no existe; las preferencias y
+        # migraciones siguen aplicándose cuando no hay recálculo forzado.
+        if existing is not None and not self._force_recalculate:
             previous_preference = str(existing.get("preference") or "Athena")
             if previous_preference != preference:
                 needs_new = True
