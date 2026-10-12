@@ -3483,6 +3483,14 @@ class CoachAICoordinator(
                             scheduled_result=str(scheduled)[:2000],
                             synced_at=dt_util.now().isoformat(),
                             replacement_pending=False,
+                            # Una vez programado el nuevo workout, los datos
+                            # previous_* dejan de ser referencias activas.
+                            previous_workout_id=None,
+                            previous_workout_signature=None,
+                            previous_scheduled=False,
+                            previous_scheduled_date=None,
+                            previous_uploaded_result=None,
+                            previous_scheduled_workout_id=None,
                         )
                         frozen_record = await self.history.frozen_plan_record_for_date(
                             dt_util.now().date().isoformat()

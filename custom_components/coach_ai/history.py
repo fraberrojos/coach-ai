@@ -696,7 +696,16 @@ class HistoryManager:
             return False
 
         now = datetime.now().astimezone().isoformat()
-        garmin_data = {}
+
+        # Al sustituir el plan diario, conservar los identificadores y el
+        # estado de Garmin. Si se reinicia Home Assistant o falla la
+        # sincronización, el coordinador podrá reconocer la plantilla ya
+        # creada y evitar subir otra idéntica.
+        garmin_data: dict[str, Any] = {}
+        if isinstance(existing_record, dict):
+            previous_garmin = existing_record.get("garmin")
+            if isinstance(previous_garmin, dict):
+                garmin_data = dict(previous_garmin)
 
         record = {
             "timestamp": now,
